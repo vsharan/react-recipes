@@ -4,10 +4,10 @@ import { Query } from "react-apollo";
 
 const withSession = Component => props => (
     <Query query={GET_CURRENT_USER}>
-        {(data, loading) => {
-            if(loading) return null;
+        {({ data, loading, refetch }) => {
+            if (loading) return null;
             return (
-                <Component {...props} />
+                <Component {...props} refetch={refetch} session={data} />
             )
         }}
     </Query>

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Mutation } from "react-apollo";
 import { SIGNUP_USER } from "../../queries";
 import Error from "../Error";
+import { withRouter } from "react-router-dom";
 
 const initialState = {
   username: "",
@@ -25,10 +26,11 @@ class Signup extends Component {
 
   handleSumit = (event, signupUser) => {
     event.preventDefault();
-    signupUser().then(({data}) => {
-        console.log(data);
-        localStorage.setItem("token", data.signupUser.token);
+    signupUser().then(async ({ data }) => {
+      localStorage.setItem("token", data.signupUser.token);
+      await this.props.refetch();
       this.clearState();
+      this.props.history.push("/");
     });
   };
 
@@ -93,7 +95,7 @@ class Signup extends Component {
                 >
                   Submit
                 </button>
-                {error && <Error error={error}/>}
+                {error && <Error error={error} />}
               </form>
             );
           }}
@@ -103,4 +105,4 @@ class Signup extends Component {
   }
 }
 
-export default Signup;
+export default withRouter(Signup);

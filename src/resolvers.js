@@ -17,8 +17,6 @@ export const resolvers = {
                 return null;
             }
 
-            console.log(currentUser, "-----------------");
-
             let user = await User.findOne({username: currentUser.username})
             .populate({
                 path: "favorites",

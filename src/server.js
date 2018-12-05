@@ -40,9 +40,10 @@ let server = new ApolloServer({
     context: async ({ req, connection }) => {
         let currentUser;
         const token = req.headers["authorization"];
-        if (token !== null) {
+        if (token !== "null") {
             try {
-                currentUser = jwt.verify(token, process.env.SECRET);
+                currentUser = await jwt.verify(token, process.env.SECRET);
+                console.log(currentUser);
             } catch (error) {
                 console.log(error);
             }
