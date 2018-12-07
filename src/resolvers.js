@@ -2,26 +2,38 @@ import jwt from "jsonwebtoken";
 import { User } from "./models/User";
 import bcrypt from "bcrypt";
 
-export const createToken =(user, secret, expiresIn)=> {
-    const { username, email} = user;
-    return jwt.sign({username, email}, secret, {expiresIn});
+export const createToken = (user, secret, expiresIn) => {
+    const { username, email } = user;
+    return jwt.sign({ username, email }, secret, { expiresIn });
 }
 
 export const resolvers = {
     Query: {
         getAllRecipes: async (root, { }, { Recipe }) => {
-            return Recipe.find();
+            console.log("---------------- GetAllRecipes-----------------");
+            return Recipe.find().sort({ createdDate: "desc"});
         },
-        getCurrentUser: async (root, {}, {currentUser, User}) => {
-            if(!currentUser) {
+        searchRecipes: async(root, {searchTerm}, {Recipe}) => {
+            if(searchTerm) {
+                return Recipe.find({}).sort({ likes: "desc", createdDate: "desc"});
+            } else{
+                return Recipe.find().sort({ likes: "desc", createdDate: "desc"});
+            }
+        },
+        getRecipe: async (root, { _id }, { Recipe }) => {
+            console.log("---------------- GetAllRecipes-----------------");
+            return Recipe.findOne({ _id });
+        },
+        getCurrentUser: async (root, { }, { currentUser, User }) => {
+            if (!currentUser) {
                 return null;
             }
 
-            let user = await User.findOne({username: currentUser.username})
-            .populate({
-                path: "favorites",
-                model: "Recipe"
-            });
+            let user = await User.findOne({ username: currentUser.username })
+                .populate({
+                    path: "favorites",
+                    model: "Recipe"
+                });
 
             console.log(JSON.stringify(user));
 
@@ -40,25 +52,25 @@ export const resolvers = {
 
             return newRecipe;
         },
-        signinUser: async (root, {username, password}, {User}) => {
-            const user = await User.findOne({username});
+        signinUser: async (root, { username, password }, { User }) => {
+            const user = await User.findOne({ username });
 
-            if(!user) {
+            if (!user) {
                 throw new Error('User not found');
             }
 
             const isValidPassword = await bcrypt.compare(password, user.password);
 
-            if(!isValidPassword) {
+            if (!isValidPassword) {
                 throw new Error("Invalid password");
             }
 
-            return {token: createToken(user, process.env.SECRET, '1hr')};
+            return { token: createToken(user, process.env.SECRET, '1hr') };
 
         },
-        signupUser: async ( root, {username, email, password}, {User}) => {
-            const user = await User.findOne({username});
-            if(user) {
+        signupUser: async (root, { username, email, password }, { User }) => {
+            const user = await User.findOne({ username });
+            if (user) {
                 throw new Error(`User already exists`);
             }
 
@@ -68,8 +80,8 @@ export const resolvers = {
                 password
             }).save();
 
-            return {token: createToken(newUser, process.env.SECRET, '1hr')};
-        }
+            return { token: createToken(newUser, process.env.SECRET, '1hr') };
+        }        
     }
 
 }

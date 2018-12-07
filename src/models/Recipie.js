@@ -27,6 +27,11 @@ const recipieSchema = new Schema({
     likes: {
         type: Number,
         default: 0
+    },
+    username: {
+        type: Schema.Types.String,
+        ref: "User"
+
     }
 });
 
